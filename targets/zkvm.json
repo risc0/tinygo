@@ -13,5 +13,6 @@
     "gc": "leaking",
     "features": "+m",
     "linkerscript": "targets/riscv32im-risc0-zkvm-elf.ld",
-	"gdb": ["gdb-multiarch"]
+    "gdb": ["gdb-multiarch"],
+    "emulator": "r0vm --elf {}"
 }
