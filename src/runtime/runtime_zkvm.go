@@ -5,6 +5,7 @@ package runtime
 
 import (
 	"device/riscv"
+	"unsafe"
 )
 
 type timeUnit int64
@@ -16,8 +17,24 @@ const TargetBits = 32
 
 //export main
 func main() {
+	preinit()
 	run()
 	exit(0)
+}
+
+//go:extern __bss_begin
+var __bss_begin [0]byte
+
+//go:extern __bss_end
+var __bss_end [0]byte
+
+func preinit() {
+	// Initialize .bss: zero-initialized global variables.
+	ptr := unsafe.Pointer(&__bss_begin)
+	for ptr != unsafe.Pointer(&__bss_end) {
+		*(*uint32)(ptr) = 0
+		ptr = unsafe.Pointer(uintptr(ptr) + 4)
+	}
 }
 
 // Align on word boundary.
