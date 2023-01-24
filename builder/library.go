@@ -172,6 +172,10 @@ func (l *Library) load(config *compileopts.Config, tmpdir string) (job *compileJ
 	if strings.HasPrefix(target, "riscv32-") {
 		args = append(args, "-march=rv32imac", "-mabi=ilp32", "-fforce-enable-int128")
 	}
+	if strings.Compare(target, "riscv32") == 0 {
+		args = append(args, "-march=rv32im", "-mabi=ilp32")
+	}
+
 	if strings.HasPrefix(target, "riscv64-") {
 		args = append(args, "-march=rv64gc", "-mabi=lp64")
 	}
