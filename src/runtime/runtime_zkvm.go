@@ -60,7 +60,15 @@ func ticks() timeUnit {
 }
 
 func putchar(c byte) {
-	// TODO
+	// Do the move first because the parameter c is stored in a0, which gets overwritten for the syscall
+	riscv.AsmFull("mv a1, {value}",
+		map[string]interface{}{"value": uintptr(unsafe.Pointer(&c))})
+	riscv.Asm("li t0, 2") // software ecall
+	riscv.Asm("li a7, 2") // SYS_IO
+	riscv.Asm("li a0, 1") // stdout
+	// We're only printing a single character. Set the buffer length = 1
+	riscv.Asm("li a2, 1")
+	riscv.Asm("ecall")
 	return
 }
 
