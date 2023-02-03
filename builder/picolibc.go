@@ -29,7 +29,7 @@ var Picolibc = Library{
 			"-DTINY_STDIO",
 			"-D_IEEE_LIBM",
 			"-D__OBSOLETE_MATH_FLOAT=1", // use old math code that doesn't expect a FPU
-			"-D__OBSOLETE_MATH_DOUBLE=0",
+			"-D__OBSOLETE_MATH_DOUBLE=1",
 			"-nostdlibinc",
 			"-isystem", newlibDir + "/libc/include",
 			"-I" + newlibDir + "/libc/tinystdio",
