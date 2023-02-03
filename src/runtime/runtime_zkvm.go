@@ -8,12 +8,54 @@ import (
 	"unsafe"
 )
 
-type timeUnit int64
+const GOARCH = "zkvm"
+
+// The bitness of the CPU (e.g. 8, 32, 64).
+const TargetBits = 32
+
+const deferExtraRegs = 0
+
+type timeUnit uint32
 
 var timestamp timeUnit
 
-const GOARCH = "zkvm"
-const TargetBits = 32
+const baremetal = false
+
+//go:extern _heap_start
+var heapStartSymbol [0]byte
+
+//go:extern _heap_end
+var heapEndSymbol [0]byte
+
+//go:extern _globals_start
+var globalsStartSymbol [0]byte
+
+//go:extern _globals_end
+var globalsEndSymbol [0]byte
+
+//go:extern _stack_top
+var stackTopSymbol [0]byte
+
+var (
+	heapStart    = uintptr(unsafe.Pointer(&heapStartSymbol))
+	heapEnd      = uintptr(unsafe.Pointer(&heapEndSymbol))
+	globalsStart = uintptr(unsafe.Pointer(&globalsStartSymbol))
+	globalsEnd   = uintptr(unsafe.Pointer(&globalsEndSymbol))
+	stackTop     = uintptr(unsafe.Pointer(&stackTopSymbol))
+)
+
+func growHeap() bool {
+	// On zkvm, there is no way the heap can be grown.
+	return false
+}
+
+//go:linkname procPin sync/atomic.runtime_procPin
+func procPin() {
+}
+
+//go:linkname procUnpin sync/atomic.runtime_procUnpin
+func procUnpin() {
+}
 
 //export main
 func main() {
@@ -37,11 +79,6 @@ func preinit() {
 	}
 }
 
-// Align on word boundary.
-func align(ptr uintptr) uintptr {
-	return (ptr + 3) &^ 3
-}
-
 func ticksToNanoseconds(ticks timeUnit) int64 {
 	return int64(ticks)
 }
@@ -55,10 +92,6 @@ func sleepTicks(d timeUnit) {
 	timestamp += d
 }
 
-func ticks() timeUnit {
-	return timestamp
-}
-
 func putchar(c byte) {
 	// Do the move first because the parameter c is stored in a0, which gets overwritten for the syscall
 	riscv.AsmFull("mv a1, {value}",
@@ -66,27 +99,47 @@ func putchar(c byte) {
 	riscv.Asm("li t0, 2") // software ecall
 	riscv.Asm("li a7, 2") // SYS_IO
 	riscv.Asm("li a0, 1") // stdout
-	// We're only printing a single character. Set the buffer length = 1
+	// we're only printing a single character. Set the buffer length = 1
 	riscv.Asm("li a2, 1")
 	riscv.Asm("ecall")
 	return
-}
-
-func getchar() byte {
-	// TODO
-	return 0
-}
-
-func buffered() int {
-	// TODO
-	return 0
 }
 
 func abort() {
 	exit(1)
 }
 
+//go:linkname exit syscall.Exit
 func exit(code int) {
 	riscv.Asm("li t0, 0")
 	riscv.Asm("ecall")
+}
+
+//go:linkname now time.now
+func now() (sec int64, nsec int32, mono int64) {
+	mono = nanotime()
+	sec = mono / (1000 * 1000 * 1000)
+	nsec = int32((mono) - sec*(1000*1000*1000))
+	return
+}
+
+// zkVM has no notion of time the closest thing to time is the current cycle count
+func ticks() timeUnit {
+	var cycle_count uint32
+	riscv.Asm("li t0, 2") // software ecall
+	riscv.Asm("li a7, 4") // SYS_CYCLE_COUNT
+	riscv.Asm("ecall")
+	riscv.AsmFull("mv {value}, a0",
+		map[string]interface{}{"value": cycle_count})
+
+	return timeUnit(cycle_count)
+}
+
+// Align on word boundary.
+func align(ptr uintptr) uintptr {
+	return (ptr + 3) &^ 3
+}
+
+func getCurrentStackPointer() uintptr {
+	return uintptr(stacksave())
 }
