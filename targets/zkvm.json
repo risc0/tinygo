@@ -6,7 +6,8 @@
     "libc": "picolibc",
     "llvm-target": "riscv32",
     "gc": "leaking",
-    "scheduler": "none",
+    "scheduler": "tasks",
+    "default-stack-size": 1024,
     "build-tags": ["tinygo.zkvm", "baremetal"],
     "cflags": [
         "-Werror",
@@ -25,6 +26,7 @@
     "gdb": ["riscv64-unknown-elf-gdb"],
     "extra-files": [
         "src/device/riscv/start.S",
-        "src/runtime/asm_riscv.S"
+        "src/runtime/asm_riscv.S",
+        "src/internal/task/task_stack_tinygoriscv.S"
     ]
 }
