@@ -7,7 +7,7 @@
     "llvm-target": "riscv32",
     "gc": "leaking",
     "scheduler": "tasks",
-    "default-stack-size": 1024,
+    "default-stack-size": 4096,
     "build-tags": ["tinygo.zkvm", "baremetal"],
     "cflags": [
         "-Werror",

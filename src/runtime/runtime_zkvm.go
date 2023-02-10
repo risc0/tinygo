@@ -3,6 +3,23 @@
 
 package runtime
 
+/*
+#include <stdlib.h>
+__attribute__((always_inline))
+int sys_cycle_count() {
+    int result;
+	__asm__("li t0, 2\n\t" // software ecall
+	        "li a7, 4\n\t" // SYS_CYCLE_COUNT
+	        "ecall\n\t"
+	        "mv %[result], x10\n\t"
+			:[result]"=r"(result)
+			: // no input
+			: "t0", "a0", "a1", "a7"// no clobber
+			);
+	return result;
+};
+*/
+import "C"
 import (
 	"device/riscv"
 	"unsafe"
@@ -125,14 +142,7 @@ func now() (sec int64, nsec int32, mono int64) {
 
 // zkVM has no notion of time the closest thing to time is the current cycle count
 func ticks() timeUnit {
-	var cycle_count uint32
-	riscv.Asm("li t0, 2") // software ecall
-	riscv.Asm("li a7, 4") // SYS_CYCLE_COUNT
-	riscv.Asm("ecall")
-	riscv.AsmFull("mv {value}, a0",
-		map[string]interface{}{"value": cycle_count})
-
-	return timeUnit(cycle_count)
+	return timeUnit(C.sys_cycle_count())
 }
 
 // Align on word boundary.
