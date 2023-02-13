@@ -19,6 +19,13 @@ var Picolibc = Library{
 		return f.Close()
 	},
 	cflags: func(target, headerPath string) []string {
+		var obsoleteMathDouble string
+		if target == "riscv32" {
+			// If this option is a 0 for the zkvm, it generates floating-point instructions.
+			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=1"
+		} else {
+			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=0"
+		}
 		newlibDir := filepath.Join(goenv.Get("TINYGOROOT"), "lib/picolibc/newlib")
 		return []string{
 			"-Werror",
@@ -29,7 +36,7 @@ var Picolibc = Library{
 			"-DTINY_STDIO",
 			"-D_IEEE_LIBM",
 			"-D__OBSOLETE_MATH_FLOAT=1", // use old math code that doesn't expect a FPU
-			"-D__OBSOLETE_MATH_DOUBLE=1",
+			obsoleteMathDouble,
 			"-nostdlibinc",
 			"-isystem", newlibDir + "/libc/include",
 			"-I" + newlibDir + "/libc/tinystdio",
@@ -418,4 +425,6 @@ var picolibcSources = []string{
 	"libm/math/s_sin.c",
 	"libm/math/s_tan.c",
 	"libm/math/s_tanh.c",
+	"libm/math/w_exp2.c",
+	"libm/math/wf_exp2.c",
 }
