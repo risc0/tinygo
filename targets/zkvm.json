@@ -1,32 +1,32 @@
 {
-    "goos": "linux",
-    "goarch": "arm",
-    "linker": "ld.lld",
-    "rtlib": "compiler-rt",
-    "libc": "picolibc",
-    "llvm-target": "riscv32",
-    "gc": "leaking",
-    "scheduler": "tasks",
-    "default-stack-size": 4096,
-    "build-tags": ["tinygo.zkvm", "baremetal"],
-    "cflags": [
-        "-Werror",
-        "-mno-relax",
-        "-fno-exceptions", "-fno-unwind-tables", "-fno-asynchronous-unwind-tables",
-        "-ffunction-sections", "-fdata-sections",
-        "-march=rv32im",
-        "-mabi=ilp32"
-    ],
-    "ldflags": [
-        "-melf32lriscv", "--gc-sections"
-    ],
-    "features": "+m",
-    "linkerscript": "targets/riscv32im-risc0-zkvm-elf.ld",
-    "emulator": "r0vm --elf {}",
-    "gdb": ["riscv64-unknown-elf-gdb"],
-    "extra-files": [
-        "src/device/riscv/start.S",
-        "src/runtime/asm_riscv.S",
-        "src/internal/task/task_stack_tinygoriscv.S"
-    ]
+	"goos": "linux",
+	"goarch": "arm",
+	"linker": "ld.lld",
+	"rtlib": "compiler-rt",
+	"libc": "picolibc",
+	"llvm-target": "riscv32-unknown-none",
+	"gc": "leaking",
+	"scheduler": "tasks",
+	"default-stack-size": 4096,
+	"build-tags": ["tinygo.zkvm", "baremetal"],
+	"cflags": [
+		"-Werror",
+		"-mno-relax",
+		"-fno-exceptions", "-fno-unwind-tables", "-fno-asynchronous-unwind-tables",
+		"-ffunction-sections", "-fdata-sections",
+		"-march=rv32im",
+		"-mabi=ilp32"
+	],
+	"ldflags": [
+		"-melf32lriscv", "--gc-sections"
+	],
+	"features": "+m",
+	"linkerscript": "targets/riscv32im-risc0-zkvm-elf.ld",
+	"emulator": "r0vm --elf {}",
+	"gdb": ["riscv64-unknown-elf-gdb"],
+	"extra-files": [
+		"src/device/riscv/start.S",
+		"src/runtime/asm_riscv.S",
+		"src/internal/task/task_stack_tinygoriscv.S"
+	]
 }
