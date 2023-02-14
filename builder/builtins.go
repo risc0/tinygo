@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tinygo-org/tinygo/compileopts"
 	"github.com/tinygo-org/tinygo/goenv"
 )
 
@@ -169,7 +170,7 @@ var aeabiBuiltins = []string{
 // For more information, see: https://compiler-rt.llvm.org/
 var CompilerRT = Library{
 	name: "compiler-rt",
-	cflags: func(target, headerPath string) []string {
+	cflags: func(config *compileopts.Config, headerPath string) []string {
 		return []string{"-Werror", "-Wall", "-std=c11", "-nostdlibinc"}
 	},
 	sourceDir: func() string {

@@ -74,8 +74,8 @@ var Musl = Library{
 
 		return nil
 	},
-	cflags: func(target, headerPath string) []string {
-		arch := compileopts.MuslArchitecture(target)
+	cflags: func(config *compileopts.Config, headerPath string) []string {
+		arch := compileopts.MuslArchitecture(config.Triple())
 		muslDir := filepath.Join(goenv.Get("TINYGOROOT"), "lib/musl")
 		return []string{
 			"-std=c99",            // same as in musl

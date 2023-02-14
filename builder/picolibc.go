@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tinygo-org/tinygo/compileopts"
 	"github.com/tinygo-org/tinygo/goenv"
 )
 
@@ -18,10 +19,9 @@ var Picolibc = Library{
 		}
 		return f.Close()
 	},
-	cflags: func(target, headerPath string) []string {
+	cflags: func(config *compileopts.Config, headerPath string) []string {
 		var obsoleteMathDouble string
-		if target == "riscv32" {
-			// If this option is a 0 for the zkvm, it generates floating-point instructions.
+		if config.ArchIsRV32Im() {
 			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=1"
 		} else {
 			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=0"
