@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tinygo-org/tinygo/compileopts"
 	"github.com/tinygo-org/tinygo/goenv"
 )
 
@@ -27,7 +28,7 @@ var MinGW = Library{
 		return err
 	},
 	sourceDir: func() string { return "" }, // unused
-	cflags: func(target, headerPath string) []string {
+	cflags: func(config *compileopts.Config, headerPath string) []string {
 		// No flags necessary because there are no files to compile.
 		return nil
 	},

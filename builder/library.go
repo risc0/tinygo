@@ -23,7 +23,7 @@ type Library struct {
 	makeHeaders func(target, includeDir string) error
 
 	// cflags returns the C flags specific to this library
-	cflags func(target, headerPath string) []string
+	cflags func(config *compileopts.Config, headerPath string) []string
 
 	// The source directory.
 	sourceDir func() string
@@ -142,7 +142,7 @@ func (l *Library) load(config *compileopts.Config, tmpdir string) (job *compileJ
 	// Note: -fdebug-prefix-map is necessary to make the output archive
 	// reproducible. Otherwise the temporary directory is stored in the archive
 	// itself, which varies each run.
-	args := append(l.cflags(target, headerPath), "-c", "-Oz", "-g", "-ffunction-sections", "-fdata-sections", "-Wno-macro-redefined", "--target="+target, "-fdebug-prefix-map="+dir+"="+remapDir)
+	args := append(l.cflags(config, headerPath), "-c", "-Oz", "-g", "-ffunction-sections", "-fdata-sections", "-Wno-macro-redefined", "--target="+target, "-fdebug-prefix-map="+dir+"="+remapDir)
 	cpu := config.CPU()
 	if cpu != "" {
 		// X86 has deprecated the -mcpu flag, so we need to use -march instead.
@@ -169,9 +169,15 @@ func (l *Library) load(config *compileopts.Config, tmpdir string) (job *compileJ
 		// double.
 		args = append(args, "-mdouble=64")
 	}
+
 	if strings.HasPrefix(target, "riscv32-") {
-		args = append(args, "-march=rv32imac", "-mabi=ilp32", "-fforce-enable-int128")
+		if config.ArchIsRV32Im() {
+			args = append(args, "-march=rv32im", "-mabi=ilp32")
+		} else {
+			args = append(args, "-march=rv32imac", "-mabi=ilp32", "-fforce-enable-int128")
+		}
 	}
+
 	if strings.HasPrefix(target, "riscv64-") {
 		args = append(args, "-march=rv64gc", "-mabi=lp64")
 	}
