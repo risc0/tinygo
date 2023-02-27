@@ -1,4 +1,5 @@
-//go:build baremetal
+//go:build baremetal && !tinygo.zkvm
+// +build baremetal,!tinygo.zkvm
 
 package runtime
 

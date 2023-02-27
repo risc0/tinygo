@@ -1,4 +1,7 @@
-//go:build (darwin || (linux && !baremetal && !wasi && !wasm_unknown)) && !nintendoswitch
+//go:build (darwin || (linux && !baremetal && !wasi && !wasm_unknown)) && !nintendoswitch && !tinygo.zkvm
+// +build darwin linux,!baremetal,!wasi,!wasm_unknown
+// +build !nintendoswitch
+// +build !tinygo.zkvm
 
 package runtime
 

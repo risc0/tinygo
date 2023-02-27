@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tinygo-org/tinygo/compileopts"
 	"github.com/tinygo-org/tinygo/goenv"
 )
 
@@ -19,7 +20,13 @@ var Picolibc = Library{
 		}
 		return f.Close()
 	},
-	cflags: func(target, headerPath string) []string {
+	cflags: func(config *compileopts.Config, headerPath string) []string {
+		var obsoleteMathDouble string
+		if config.ArchIsRV32Im() {
+			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=1"
+		} else {
+			obsoleteMathDouble = "-D__OBSOLETE_MATH_DOUBLE=0"
+		}
 		newlibDir := filepath.Join(goenv.Get("TINYGOROOT"), "lib/picolibc/newlib")
 		return []string{
 			"-Werror",
@@ -31,8 +38,8 @@ var Picolibc = Library{
 			"-DPOSIX_IO",
 			"-D_IEEE_LIBM",
 			"-D__OBSOLETE_MATH_FLOAT=1", // use old math code that doesn't expect a FPU
-			"-D__OBSOLETE_MATH_DOUBLE=0",
 			"-D_WANT_IO_C99_FORMATS",
+			obsoleteMathDouble,
 			"-nostdlibinc",
 			"-isystem", newlibDir + "/libc/include",
 			"-I" + newlibDir + "/libc/tinystdio",
@@ -439,4 +446,6 @@ var picolibcSourcesLarge = []string{
 	"libm/math/sf_tgamma.c",
 	"libm/math/sr_lgamma.c",
 	"libm/math/srf_lgamma.c",
+	"libm/math/w_exp2.c",
+	"libm/math/wf_exp2.c",
 }

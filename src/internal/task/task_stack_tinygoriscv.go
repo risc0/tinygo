@@ -1,4 +1,6 @@
-//go:build scheduler.tasks && tinygo.riscv
+//go:build scheduler.tasks && (tinygo.riscv || tinygo.zkvm)
+// +build scheduler.tasks
+// +build tinygo.riscv tinygo.zkvm
 
 package task
 

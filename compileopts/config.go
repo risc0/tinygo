@@ -354,6 +354,18 @@ func (c *Config) CFlags(libclang bool) []string {
 	return cflags
 }
 
+// RISC-V's target is determined by the -march cflag within the config.
+// This is different from architectures that can rely on the "llvm-target" field.
+func (c *Config) ArchIsRV32Im() bool {
+	// TODO unclear if should check with clang, the boolean is a new addition
+	for _, s := range c.CFlags(true) {
+		if s == ("-march=rv32im") {
+			return true
+		}
+	}
+	return false
+}
+
 // LDFlags returns the flags to pass to the linker. A few more flags are needed
 // (like the one for the compiler runtime), but this represents the majority of
 // the flags.
