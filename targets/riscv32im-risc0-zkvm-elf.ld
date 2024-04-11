@@ -20,10 +20,10 @@ ENTRY(_start)
 
 /* Must match risc0/zkvm/platform/src/memory.rs */
 MEMORY {
-  stack        : ORIGIN = 0x02000000, LENGTH =  16M
-  data    (RW) : ORIGIN = 0x03000000, LENGTH =  16M
-  heap         : ORIGIN = 0x04000000, LENGTH =  32M
-  prog    (X)  : ORIGIN = 0x06000000, LENGTH =  32M
+  stack        : ORIGIN = 0x00000400, LENGTH =  8M - 1K
+  data    (RW) : ORIGIN = 0x00080000, LENGTH =  24M
+  heap         : ORIGIN = 0x02000000, LENGTH =  80M
+  prog    (X)  : ORIGIN = 0x07000000, LENGTH =  80M
 }
 
 SECTIONS {
@@ -73,6 +73,9 @@ SECTIONS {
   _heap_start = __heap_start;
   _heap_end = __heap_end;
   _stack_top = __stack_init$;
+
+  /* for risc0 zkvm stuff, probably not needed, just trying to get the .a to compile.. */
+  _end = _heap_start;
 
   /DISCARD/ : {
     *(.rel*)

@@ -4,24 +4,13 @@
 package runtime
 
 /*
-#include <stdlib.h>
-__attribute__((always_inline))
-int sys_cycle_count() {
-    int result;
-	__asm__("li t0, 2\n\t" // software ecall
-	        "li a7, 4\n\t" // SYS_CYCLE_COUNT
-	        "ecall\n\t"
-	        "mv %[result], x10\n\t"
-			:[result]"=r"(result)
-			: // no input
-			: "t0", "a0", "a1", "a7"// no clobber
-			);
-	return result;
-};
+#include <stdint.h>
+#cgo LDFLAGS: /Users/austinabell/development/github.com/risc0/risc0/target/riscv32im-risc0-zkvm-elf/release/librisc0_zkvm_platform.a
+void sys_write(uint32_t fd, char* c, int len);
+void sys_halt(uint8_t exit_code);
 */
 import "C"
 import (
-	"device/riscv"
 	"unsafe"
 )
 
@@ -110,15 +99,9 @@ func sleepTicks(d timeUnit) {
 }
 
 func putchar(c byte) {
-	// Do the move first because the parameter c is stored in a0, which gets overwritten for the syscall
-	riscv.AsmFull("mv a1, {value}",
-		map[string]interface{}{"value": uintptr(unsafe.Pointer(&c))})
-	riscv.Asm("li t0, 2") // software ecall
-	riscv.Asm("li a7, 2") // SYS_IO
-	riscv.Asm("li a0, 1") // stdout
-	// we're only printing a single character. Set the buffer length = 1
-	riscv.Asm("li a2, 1")
-	riscv.Asm("ecall")
+	c_char := C.char(c)
+	C.sys_write(1 /* stdout */, &c_char, 1)
+
 	return
 }
 
@@ -128,8 +111,25 @@ func abort() {
 
 //go:linkname exit syscall.Exit
 func exit(code int) {
-	riscv.Asm("li t0, 0")
-	riscv.Asm("ecall")
+	// TODO exiting this way will not currently be able to pull journal hash
+	// var initialSHAState = [8]uint32{
+	// 	0x6a09e667,
+	// 	0xbb67ae85,
+	// 	0x3c6ef372,
+	// 	0xa54ff53a,
+	// 	0x510e527f,
+	// 	0x9b05688c,
+	// 	0x1f83d9ab,
+	// 	0x5be0cd19,
+	// }
+
+	// // Arch is little endian, but these values are expected as big endian for SHA, swap.
+	// for i := 0; i < len(initialSHAState); i++ {
+	// 	b := make([]byte, 8)
+	// 	binary.BigEndian.PutUint32(b, initialSHAState[i])
+	// 	initialSHAState[i] = uint32(binary.LittleEndian.Uint32(b))
+	// }
+	C.sys_halt(uint8(code))
 }
 
 //go:linkname now time.now
@@ -140,9 +140,12 @@ func now() (sec int64, nsec int32, mono int64) {
 	return
 }
 
+//go:linkname cycle_count sys_cycle_count
+func cycle_count() uint32
+
 // zkVM has no notion of time the closest thing to time is the current cycle count
 func ticks() timeUnit {
-	return timeUnit(C.sys_cycle_count())
+	return timeUnit(cycle_count())
 }
 
 // Align on word boundary.
