@@ -6,14 +6,14 @@ var timer = time.NewTimer(time.Millisecond)
 
 func main() {
 	// Test ticker.
-	ticker := time.NewTicker(time.Millisecond * 500)
+	ticker := time.NewTicker(time.Nanosecond * 5)
 	println("waiting on ticker")
 	go func() {
-		time.Sleep(time.Millisecond * 150)
+		time.Sleep(time.Nanosecond * 5)
 		println(" - after 150ms")
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Nanosecond * 10)
 		println(" - after 200ms")
-		time.Sleep(time.Millisecond * 300)
+		time.Sleep(time.Nanosecond * 20)
 		println(" - after 300ms")
 	}()
 	<-ticker.C
@@ -21,7 +21,7 @@ func main() {
 	<-ticker.C
 	println("waited on ticker at 1000ms")
 	ticker.Stop()
-	time.Sleep(time.Millisecond * 750)
+	time.Sleep(time.Nanosecond * 7)
 	select {
 	case <-ticker.C:
 		println("fail: ticker should have stopped!")
@@ -29,28 +29,28 @@ func main() {
 		println("ticker was stopped (didn't send anything after 750ms)")
 	}
 
-	timer := time.NewTimer(time.Millisecond * 750)
+	timer := time.NewTimer(time.Nanosecond * 5)
 	println("waiting on timer")
 	go func() {
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Nanosecond * 2)
 		println(" - after 200ms")
-		time.Sleep(time.Millisecond * 400)
+		time.Sleep(time.Nanosecond * 4)
 		println(" - after 400ms")
 	}()
 	<-timer.C
-	println("waited on timer at 750ms")
-	time.Sleep(time.Millisecond * 500)
+	println("waited on timer at 500ms")
+	time.Sleep(time.Nanosecond * 5)
 
-	reset := timer.Reset(time.Millisecond * 750)
+	reset := timer.Reset(time.Nanosecond * 5)
 	println("timer reset:", reset)
 	println("waiting on timer")
 	go func() {
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Nanosecond * 2)
 		println(" - after 200ms")
-		time.Sleep(time.Millisecond * 400)
+		time.Sleep(time.Nanosecond * 4)
 		println(" - after 400ms")
 	}()
 	<-timer.C
-	println("waited on timer at 750ms")
-	time.Sleep(time.Millisecond * 500)
+	println("waited on timer at 500ms")
+	time.Sleep(time.Nanosecond * 5)
 }
