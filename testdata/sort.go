@@ -3,7 +3,7 @@ package main
 /*
 #include <stdint.h>
 void sys_halt(uint8_t exit_code, uint32_t* initial_sha_state);
-void sys_write(uint32_t fd, char* c, int len);
+void sys_write(uint32_t fd, uint8_t* byte_ptr, int len);
 void sys_sha_buffer(uint32_t* out_state, uint32_t* in_state, uint8_t* buf, uint32_t count);
 */
 import "C"
@@ -213,7 +213,7 @@ func shaBuffer(initialState [8]uint32, bytes []byte) [8]uint32 {
 	bitsTrailer := 8 * uint32(len(bytes))
 
 	// Swap bits to BE
-	b := make([]byte, 8)
+	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, bitsTrailer)
 	bitsTrailer = uint32(binary.LittleEndian.Uint32(b))
 
@@ -272,8 +272,12 @@ func main() {
 
 	var assumptionsDigestState = [8]uint32{0, 0, 0, 0, 0, 0, 0, 0}
 
+	outputBytes := [4]byte{0,1,2,3}
+
 	// No output, but finalize still calls sha on empty bytes it seems
-	journalDigest := shaBuffer(sha256InitState(), []byte{})
+	journalDigest := shaBuffer(sha256InitState(), outputBytes[:])
+
+	C.sys_write(3 /* journal */, &outputBytes[0], C.int(len(outputBytes)))
 
 	output := taggedStruct("risc0.Output", [][8]uint32{journalDigest, assumptionsDigestState})
 
