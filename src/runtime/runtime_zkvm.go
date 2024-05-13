@@ -5,7 +5,6 @@ package runtime
 
 /*
 #include <stdint.h>
-#cgo LDFLAGS: /Users/austinabell/development/github.com/risc0/risc0/target/riscv32im-risc0-zkvm-elf/release/librisc0_zkvm_platform.a
 void sys_write(uint32_t fd, char* c, int len);
 void sys_halt(uint8_t exit_code);
 */
