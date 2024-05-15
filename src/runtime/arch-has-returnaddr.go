@@ -1,4 +1,5 @@
-//go:build !(avr || tinygo.wasm)
+//go:build !(avr || tinygo.wasm || tinygo.zkvm)
+// +build !avr,!tinygo.wasm,!tinygo.zkvm
 
 package runtime
 

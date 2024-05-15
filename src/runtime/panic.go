@@ -60,13 +60,14 @@ func runtimePanic(msg string) {
 }
 
 func runtimePanicAt(addr unsafe.Pointer, msg string) {
-	if hasReturnAddr {
-		printstring("panic: runtime error at ")
-		printptr(uintptr(addr) - callInstSize)
-		printstring(": ")
-	} else {
+	// TODO fix this, even though arch added to exclude, this seems to be still built?
+	// if hasReturnAddr {
+	// 	printstring("panic: runtime error at ")
+	// 	printptr(uintptr(addr) - callInstSize)
+	// 	printstring(": ")
+	// } else {
 		printstring("panic: runtime error: ")
-	}
+	// }
 	println(msg)
 	abort()
 }
