@@ -155,3 +155,19 @@ func align(ptr uintptr) uintptr {
 func getCurrentStackPointer() uintptr {
 	return uintptr(stacksave())
 }
+
+func getchar() byte {
+	// TODO
+	return 0
+	// for machine.Serial.Buffered() == 0 {
+		// Gosched()
+	// }
+	// v, _ := machine.Serial.ReadByte()
+	// return v
+}
+
+func buffered() int {
+	// TODO
+	return 0
+	// return machine.Serial.Buffered()
+}
